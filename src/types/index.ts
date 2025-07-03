@@ -1,4 +1,3 @@
-// Core Data Types
 export interface Trade {
   id: string;
   timestamp: number;
@@ -51,7 +50,6 @@ export interface OrderBook {
   asks: OrderBookEntry[];
 }
 
-// WebSocket Connection Types
 export type ConnectionStatus =
   | "disconnected"
   | "connecting"
@@ -80,7 +78,6 @@ export interface ExchangeConfig {
   };
 }
 
-// Panel Types
 export type PanelType = "trades" | "chart" | "market-data" | "orderbook";
 
 export interface PanelConfig {
@@ -92,7 +89,6 @@ export interface PanelConfig {
   exchange?: string;
 }
 
-// Chart Types
 export interface ChartConfig {
   symbol: string;
   timeframe: "1m" | "5m" | "15m" | "30m" | "1h" | "4h" | "1d" | "1w";
@@ -100,14 +96,12 @@ export interface ChartConfig {
   indicators?: string[];
 }
 
-// Dashboard Layout Types
 export interface LayoutConfig {
   version: string;
   panels: PanelConfig[];
-  layout: any; // dockview layout object
+  layout: any;
 }
 
-// Market Data Types
 export interface MarketSummary {
   symbol: string;
   price: number;
@@ -130,7 +124,6 @@ export interface CryptoAsset {
   rank?: number;
 }
 
-// Error Types
 export interface ApiError {
   code: string;
   message: string;
@@ -139,7 +132,6 @@ export interface ApiError {
   symbol?: string;
 }
 
-// Store State Types
 export interface TradesState {
   trades: Trade[];
   isLoading: boolean;
@@ -172,7 +164,6 @@ export interface AppState {
   layout: LayoutConfig | null;
 }
 
-// Hook Return Types
 export interface UseWebSocketDataReturn {
   trades: Trade[];
   ohlcv: OHLCV[];
@@ -184,7 +175,6 @@ export interface UseWebSocketDataReturn {
   reconnect: () => void;
 }
 
-// Component Props Types
 export interface DashboardProps {
   initialLayout?: LayoutConfig;
 }
@@ -207,18 +197,16 @@ export interface MarketDataPanelProps {
   showOrderBook?: boolean;
 }
 
-// Utility Types
 export type TimeRange = "1h" | "4h" | "1d" | "1w" | "1m" | "3m" | "1y";
 export type DataUpdateFrequency = "realtime" | "fast" | "normal" | "slow";
 
 export interface DataThrottleConfig {
-  trades: number; // milliseconds
+  trades: number;
   ohlcv: number;
   ticker: number;
   orderbook: number;
 }
 
-// Constants
 export const DEFAULT_SYMBOLS = [
   "BTC/USDT",
   "ETH/USDT",

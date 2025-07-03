@@ -13,16 +13,11 @@ import {
 import { format } from "date-fns";
 import DockviewLayout, { DockviewLayoutRef } from "./DockviewLayout";
 
-/**
- * Main Dashboard Component - Now with Real-Time Data
- */
 export default function Dashboard({ initialLayout }: DashboardProps) {
   const dockviewLayoutRef = useRef<DockviewLayoutRef>(null);
 
-  // Initialize WebSocket connection
   const webSocket = useWebSocketData();
   const connectionStatus = useConnectionStatus();
-  const error = useError();
   const lastUpdate = useLastUpdate();
   const trades = useTrades();
 

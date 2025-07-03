@@ -14,34 +14,7 @@ import {
 } from "recharts";
 import { useSymbolData } from "@/hooks/useWebSocketData";
 import { Trade } from "@/types";
-import { sub, startOfMinute, startOfHour, startOfDay } from "date-fns";
-
-const generateMockTrades = (count: number): Trade[] => {
-  const trades: Trade[] = [];
-  let lastPrice = 108000;
-  const now = new Date();
-
-  for (let i = 0; i < count; i++) {
-    const timestamp = now.getTime() - (count - i) * 60 * 1000;
-    const priceChange = (Math.random() - 0.49) * (lastPrice * 0.001);
-    const price = lastPrice + priceChange;
-    const amount = Math.random() * 0.5 + 0.01;
-
-    trades.push({
-      id: `mock-${timestamp}`,
-      timestamp,
-      datetime: new Date(timestamp).toISOString(),
-      symbol: "BTC/USDT",
-      side: price > lastPrice ? "buy" : "sell",
-      price,
-      amount,
-      cost: price * amount,
-      exchange: "mock",
-    });
-    lastPrice = price;
-  }
-  return trades;
-};
+import { startOfMinute, startOfHour } from "date-fns";
 
 type TimeRange = "1H" | "1D" | "7D" | "1M" | "ALL";
 

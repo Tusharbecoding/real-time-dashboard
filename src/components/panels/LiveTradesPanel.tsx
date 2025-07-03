@@ -2,8 +2,6 @@
 
 import React, { useEffect, useRef, useMemo, useCallback } from "react";
 import { useTrades } from "@/store/dashboardStore";
-
-// Import perspective components
 import "@finos/perspective-viewer";
 import "@finos/perspective-viewer-datagrid";
 
@@ -13,12 +11,10 @@ const LiveTradesPanel: React.FC = React.memo(() => {
   const viewerRef = useRef<any>(null);
   const tableRef = useRef<any>(null);
   const lastUpdateRef = useRef<number>(0);
-
-  // Throttle data to max 100 trades, update max every 500ms
   const throttledData = useMemo(() => {
     const now = Date.now();
     if (now - lastUpdateRef.current < 500) {
-      return null; // Skip this update
+      return null;
     }
     lastUpdateRef.current = now;
 
@@ -32,7 +28,6 @@ const LiveTradesPanel: React.FC = React.memo(() => {
     }));
   }, [trades]);
 
-  // Initialize viewer once
   useEffect(() => {
     let mounted = true;
 
@@ -40,7 +35,6 @@ const LiveTradesPanel: React.FC = React.memo(() => {
       if (!containerRef.current || viewerRef.current) return;
 
       try {
-        // Import Perspective
         const perspective = await import("@finos/perspective");
         await import("@finos/perspective-viewer");
         // @ts-ignore
@@ -48,7 +42,6 @@ const LiveTradesPanel: React.FC = React.memo(() => {
 
         if (!mounted) return;
 
-        // Create worker and initial empty table
         const worker = perspective.default.worker();
         const table = await worker.table({
           symbol: "string",
@@ -61,18 +54,14 @@ const LiveTradesPanel: React.FC = React.memo(() => {
 
         tableRef.current = table;
 
-        // Create viewer element
         const viewer = document.createElement("perspective-viewer");
         viewer.setAttribute("plugin", "Datagrid");
         viewer.style.height = "100%";
         viewer.style.width = "100%";
         viewer.style.backgroundColor = "#1f2937";
 
-        // Clear and append
         containerRef.current.innerHTML = "";
         containerRef.current.appendChild(viewer);
-
-        // Load table
         await viewer.load(table);
         viewerRef.current = viewer;
 
@@ -92,7 +81,6 @@ const LiveTradesPanel: React.FC = React.memo(() => {
     };
   }, []);
 
-  // Update data with throttling
   const updateData = useCallback(async (data: any[]) => {
     if (!tableRef.current || !data || data.length === 0) return;
 

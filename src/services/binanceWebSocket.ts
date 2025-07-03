@@ -75,7 +75,6 @@ export class BinanceWebSocketService {
   private reconnectTimeout: NodeJS.Timeout | null = null;
   private isConnecting = false;
 
-  // Popular trading pairs
   private symbols = ["btcusdt", "ethusdt", "adausdt", "dotusdt", "linkusdt"];
 
   constructor() {}
@@ -104,7 +103,6 @@ export class BinanceWebSocketService {
 
     this.isConnecting = true;
 
-    // Create stream URLs for multiple symbols
     const streams = this.symbols.map((symbol) => `${symbol}@trade`).join("/");
     const wsUrl = `wss://stream.binance.com:9443/ws/${streams}`;
 
@@ -126,7 +124,7 @@ export class BinanceWebSocketService {
             symbol: data.s,
             price: parseFloat(data.p),
             amount: parseFloat(data.q),
-            side: data.m ? "sell" : "buy", // If buyer is market maker, it's a sell order
+            side: data.m ? "sell" : "buy",
             exchange: "Binance",
           };
 
@@ -158,7 +156,6 @@ export class BinanceWebSocketService {
   }
 
   private connectTickerWebSocket() {
-    // Create ticker stream URLs for 24hr statistics
     const tickerStreams = this.symbols
       .map((symbol) => `${symbol}@ticker`)
       .join("/");
