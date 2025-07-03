@@ -11,6 +11,7 @@ const LiveTradesPanel: React.FC = React.memo(() => {
   const viewerRef = useRef<any>(null);
   const tableRef = useRef<any>(null);
   const lastUpdateRef = useRef<number>(0);
+
   const throttledData = useMemo(() => {
     const now = Date.now();
     if (now - lastUpdateRef.current < 500) {
@@ -60,6 +61,9 @@ const LiveTradesPanel: React.FC = React.memo(() => {
         viewer.style.width = "100%";
         viewer.style.backgroundColor = "#1f2937";
 
+        // Add responsive styles for mobile
+        viewer.style.fontSize = window.innerWidth < 640 ? "12px" : "14px";
+
         containerRef.current.innerHTML = "";
         containerRef.current.appendChild(viewer);
         await viewer.load(table);
@@ -70,7 +74,7 @@ const LiveTradesPanel: React.FC = React.memo(() => {
         console.error("Perspective failed:", err);
         if (containerRef.current && mounted) {
           containerRef.current.innerHTML =
-            '<div class="p-4 text-red-400">Perspective failed to load</div>';
+            '<div class="p-2 sm:p-4 text-red-400 text-sm">Perspective failed to load</div>';
         }
       }
     };
@@ -99,16 +103,39 @@ const LiveTradesPanel: React.FC = React.memo(() => {
 
   return (
     <div className="h-full w-full flex flex-col bg-gray-900">
-      <div className="p-2 bg-gray-800 text-white text-sm flex justify-between">
-        <span>Live Trades ({trades.length})</span>
-        <span className="text-green-400 text-xs">● LIVE</span>
+      {/* Responsive header */}
+      <div className="flex-shrink-0 p-2 sm:p-3 bg-gray-800 text-white border-b border-gray-700/50">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0">
+          <div className="flex items-center gap-2">
+            <span className="text-sm sm:text-base font-medium">
+              Live Trades
+            </span>
+            <span className="text-xs text-gray-400 bg-gray-700/50 px-2 py-0.5 rounded">
+              {trades.length}
+            </span>
+          </div>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+            <span className="text-green-400 text-xs font-medium">LIVE</span>
+          </div>
+        </div>
       </div>
+
+      {/* Perspective viewer container - Responsive */}
       <div
         ref={containerRef}
-        className="flex-1 min-h-0"
-        style={{ height: "calc(100% - 40px)" }}
+        className="flex-1 min-h-0 relative"
+        style={{ height: "calc(100% - 50px)" }}
       >
-        <div className="p-4 text-gray-400 text-sm">Loading trades...</div>
+        {/* Loading state with responsive design */}
+        <div className="absolute inset-0 flex items-center justify-center p-2 sm:p-4 text-gray-400">
+          <div className="text-center">
+            <div className="text-sm sm:text-base mb-1">Loading trades...</div>
+            <div className="text-xs text-gray-500">
+              Live data will appear here
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

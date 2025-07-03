@@ -24,10 +24,16 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
-      <div className="bg-gray-800 bg-opacity-80 text-white p-2 rounded border border-gray-700">
-        <p className="label">{`${new Date(label).toLocaleString()}`}</p>
-        <p className="intro">{`Price: ${data.price.toFixed(2)}`}</p>
-        <p className="intro">{`Volume: ${data.volume.toFixed(4)}`}</p>
+      <div className="bg-gray-800 bg-opacity-90 text-white p-2 sm:p-3 rounded border border-gray-700 text-xs sm:text-sm shadow-lg">
+        <p className="label font-medium mb-1">{`${new Date(
+          label
+        ).toLocaleString()}`}</p>
+        <p className="intro text-emerald-400">{`Price: $${data.price.toFixed(
+          2
+        )}`}</p>
+        <p className="intro text-blue-400">{`Volume: ${data.volume.toFixed(
+          4
+        )}`}</p>
       </div>
     );
   }
@@ -102,18 +108,23 @@ const PriceChartPanel: React.FC = () => {
   );
 
   return (
-    <div className="h-full w-full flex flex-col p-4 bg-gray-800 text-white">
-      <div className="flex items-center justify-between mb-4">
-        <div className="text-lg font-bold">Price Chart (BTC/USDT)</div>
-        <div className="flex space-x-1 bg-gray-800 p-1 rounded-md">
+    <div className="h-full w-full flex flex-col p-2 sm:p-4 bg-gray-800 text-white">
+      {/* Responsive header with mobile-friendly controls */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 gap-2 sm:gap-0">
+        <div className="text-base sm:text-lg font-bold">
+          Price Chart (BTC/USDT)
+        </div>
+
+        {/* Mobile-responsive time range selector */}
+        <div className="flex flex-wrap gap-1 bg-gray-700/50 p-1 rounded-md sm:rounded-lg">
           {timeRanges.map((range) => (
             <button
               key={range}
               onClick={() => setTimeRange(range)}
-              className={`px-3 py-1 text-sm rounded ${
+              className={`px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded transition-all duration-200 flex-1 sm:flex-none min-w-0 touch-manipulation ${
                 timeRange === range
-                  ? "bg-blue-600 text-white"
-                  : "text-gray-400 hover:bg-gray-700"
+                  ? "bg-blue-600 text-white font-medium shadow-md"
+                  : "text-gray-300 hover:bg-gray-600/50 hover:text-white"
               }`}
             >
               {range}
@@ -121,34 +132,47 @@ const PriceChartPanel: React.FC = () => {
           ))}
         </div>
       </div>
+
       {chartData.length > 0 ? (
-        <div className="flex-grow flex flex-col">
-          <div style={{ flex: "3 1 0%" }}>
+        <div className="flex-grow flex flex-col gap-2 sm:gap-3 min-h-0">
+          {/* Price Chart - Responsive height */}
+          <div className="flex-1 min-h-0" style={{ minHeight: "200px" }}>
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
                 data={chartData}
-                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                margin={{
+                  top: 5,
+                  right: window.innerWidth < 640 ? 15 : 30,
+                  left: window.innerWidth < 640 ? 5 : 20,
+                  bottom: 5,
+                }}
                 syncId="priceVolumeChart"
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                 <XAxis
                   dataKey="timestamp"
-                  tickFormatter={(ts) => new Date(ts).toLocaleTimeString()}
+                  tickFormatter={(ts) =>
+                    new Date(ts).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  }
                   stroke="#9CA3AF"
-                  tick={{ fontSize: 12 }}
+                  tick={{ fontSize: window.innerWidth < 640 ? 10 : 12 }}
                   hide={true}
                 />
                 <YAxis
                   orientation="right"
                   stroke="#9CA3AF"
-                  tick={{ fontSize: 12 }}
+                  tick={{ fontSize: window.innerWidth < 640 ? 10 : 12 }}
                   tickFormatter={(value) =>
                     `$${(value as number).toLocaleString(undefined, {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
+                      minimumFractionDigits: window.innerWidth < 640 ? 0 : 2,
+                      maximumFractionDigits: window.innerWidth < 640 ? 0 : 2,
                     })}`
                   }
                   domain={["auto", "auto"]}
+                  width={window.innerWidth < 640 ? 50 : 80}
                 />
                 <Tooltip content={<CustomTooltip />} />
                 <Area
@@ -157,17 +181,24 @@ const PriceChartPanel: React.FC = () => {
                   stroke="#34D399"
                   fill="#34D399"
                   fillOpacity={0.2}
-                  strokeWidth={2}
+                  strokeWidth={window.innerWidth < 640 ? 1.5 : 2}
                   isAnimationActive={false}
                 />
               </AreaChart>
             </ResponsiveContainer>
           </div>
-          <div style={{ flex: "1 1 0%" }}>
+
+          {/* Volume Chart - Responsive height */}
+          <div className="h-24 sm:h-32 md:h-40">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={chartData}
-                margin={{ top: 5, right: 30, left: 20, bottom: 20 }}
+                margin={{
+                  top: 5,
+                  right: window.innerWidth < 640 ? 15 : 30,
+                  left: window.innerWidth < 640 ? 5 : 20,
+                  bottom: window.innerWidth < 640 ? 15 : 20,
+                }}
                 syncId="priceVolumeChart"
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -186,13 +217,22 @@ const PriceChartPanel: React.FC = () => {
                     });
                   }}
                   stroke="#9CA3AF"
-                  tick={{ fontSize: 12 }}
+                  tick={{ fontSize: window.innerWidth < 640 ? 9 : 12 }}
+                  interval={window.innerWidth < 640 ? "preserveStartEnd" : 0}
                 />
                 <YAxis
                   orientation="right"
                   stroke="#9CA3AF"
-                  tick={{ fontSize: 12 }}
-                  tickFormatter={(value) => `${(value as number).toFixed(2)}`}
+                  tick={{ fontSize: window.innerWidth < 640 ? 9 : 12 }}
+                  tickFormatter={(value) => {
+                    const num = value as number;
+                    if (window.innerWidth < 640) {
+                      if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+                      return num.toFixed(1);
+                    }
+                    return num.toFixed(2);
+                  }}
+                  width={window.innerWidth < 640 ? 40 : 60}
                 />
                 <Tooltip content={<CustomTooltip />} />
                 <Bar dataKey="volume" isAnimationActive={false}>
@@ -209,7 +249,12 @@ const PriceChartPanel: React.FC = () => {
         </div>
       ) : (
         <div className="flex-grow flex items-center justify-center text-gray-400">
-          <div>Waiting for data...</div>
+          <div className="text-center">
+            <div className="text-base sm:text-lg mb-2">Waiting for data...</div>
+            <div className="text-xs sm:text-sm text-gray-500">
+              Chart will appear once trade data is received
+            </div>
+          </div>
         </div>
       )}
     </div>

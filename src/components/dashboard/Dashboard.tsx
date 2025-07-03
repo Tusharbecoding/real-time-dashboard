@@ -48,38 +48,90 @@ export default function Dashboard({ initialLayout }: DashboardProps) {
 
   return (
     <div className="h-screen w-full bg-gray-900 text-white flex flex-col">
-      <header className="h-12 bg-gray-800 border-b border-gray-700 flex items-center px-4 flex-shrink-0">
-        <div className="flex items-center gap-2">
-          <h1 className="text-lg font-semibold">Crypto Trading Dashboard</h1>
+      {/* Responsive header */}
+      <header className="h-12 sm:h-14 bg-gray-800 border-b border-gray-700 flex items-center px-2 sm:px-4 flex-shrink-0">
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          <h1 className="text-sm sm:text-lg font-semibold truncate">
+            <span className="hidden sm:inline">Crypto Trading Dashboard</span>
+            <span className="sm:hidden">Crypto Dashboard</span>
+          </h1>
         </div>
-        <div className="ml-auto flex items-center gap-4">
+
+        {/* Mobile-responsive controls */}
+        <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
           <button
             onClick={handleResetLayout}
-            className="flex items-center gap-1 px-3 py-1.5 text-xs bg-slate-700/50 hover:bg-slate-600/50 border border-slate-600/50 hover:border-slate-500/50 rounded-md transition-all duration-200 text-gray-300 hover:text-white"
+            className="flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 text-xs bg-slate-700/50 hover:bg-slate-600/50 border border-slate-600/50 hover:border-slate-500/50 rounded-md transition-all duration-200 text-gray-300 hover:text-white touch-manipulation"
             title="Reset Layout"
           >
             <RotateCcw className="w-3 h-3" />
-            <span>Reset Layout</span>
+            <span className="hidden sm:inline">Reset Layout</span>
+            <span className="sm:hidden">Reset</span>
           </button>
         </div>
       </header>
+
+      {/* Main content area - Responsive */}
       <div className="flex-1 overflow-hidden">
         <DockviewLayout ref={dockviewLayoutRef} />
       </div>
-      <footer className="h-6 bg-gray-800 border-t border-gray-700 flex items-center px-4 text-xs text-gray-400 flex-shrink-0">
-        <span>WebSocket: {connectionStatus}</span>
-        <span className="mx-2">•</span>
-        <span>Data Feed: {webSocket.isConnected ? "Live" : "Simulated"}</span>
-        <span className="mx-2">•</span>
-        <span>Last Update: {format(new Date(lastUpdate), "HH:mm:ss")}</span>
-        <span className="mx-2">•</span>
-        <span>Trades: {trades.length}</span>
-        {webSocket.isConnecting && (
-          <>
-            <span className="mx-2">•</span>
-            <span className="text-yellow-400">Connecting...</span>
-          </>
-        )}
+
+      {/* Responsive footer */}
+      <footer className="h-5 sm:h-6 bg-gray-800 border-t border-gray-700 flex items-center px-2 sm:px-4 text-xs text-gray-400 flex-shrink-0 overflow-hidden">
+        <div className="flex items-center gap-1 sm:gap-2 min-w-0 flex-1">
+          {/* Mobile-first responsive status items */}
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <StatusIcon className={`w-3 h-3 ${statusInfo.color}`} />
+            <span className="hidden sm:inline">WebSocket:</span>
+            <span className={`${statusInfo.color} text-xs`}>
+              <span className="sm:hidden">
+                {connectionStatus === "connected" ? "●" : "○"}
+              </span>
+              <span className="hidden sm:inline">{connectionStatus}</span>
+            </span>
+          </div>
+
+          <span className="text-gray-600 hidden sm:inline">•</span>
+
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <span className="hidden sm:inline">Data Feed:</span>
+            <span className="text-xs">
+              <span className="sm:hidden">
+                {webSocket.isConnected ? "Live" : "Sim"}
+              </span>
+              <span className="hidden sm:inline">
+                {webSocket.isConnected ? "Live" : "Simulated"}
+              </span>
+            </span>
+          </div>
+
+          <span className="text-gray-600 hidden md:inline">•</span>
+
+          <div className="hidden md:flex items-center gap-1 flex-shrink-0">
+            <span>Last Update:</span>
+            <span className="text-xs">
+              {format(new Date(lastUpdate), "HH:mm:ss")}
+            </span>
+          </div>
+
+          <span className="text-gray-600 hidden lg:inline">•</span>
+
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <span className="hidden lg:inline">Trades:</span>
+            <span className="lg:hidden">T:</span>
+            <span className="text-xs">{trades.length}</span>
+          </div>
+
+          {webSocket.isConnecting && (
+            <>
+              <span className="text-gray-600 hidden sm:inline">•</span>
+              <span className="text-yellow-400 text-xs flex-shrink-0">
+                <span className="sm:hidden">...</span>
+                <span className="hidden sm:inline">Connecting...</span>
+              </span>
+            </>
+          )}
+        </div>
       </footer>
     </div>
   );
