@@ -102,7 +102,7 @@ const LiveTradesPanel: React.FC = React.memo(() => {
   }, [throttledData, updateData]);
 
   return (
-    <div className="h-full w-full flex flex-col bg-gray-900">
+    <div className="h-full w-full flex flex-col bg-gray-800">
       {/* Responsive header */}
       <div className="flex-shrink-0 p-2 sm:p-3 bg-gray-800 text-white border-b border-gray-700/50">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0">
