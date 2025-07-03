@@ -7,7 +7,6 @@ import {
   Star,
   ArrowUpRight,
   ArrowDownRight,
-  DollarSign,
   Activity,
 } from "lucide-react";
 
@@ -96,7 +95,6 @@ const MarketDataPanel: React.FC = () => {
 
   return (
     <div className="h-full w-full bg-gray-800 text-white flex flex-col overflow-hidden">
-      {/* Header with Search */}
       <div className="flex-shrink-0 px-4 py-3 bg-gray-800 backdrop-blur-sm border-b border-slate-800/50">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">

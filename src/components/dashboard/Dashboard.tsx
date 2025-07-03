@@ -53,13 +53,11 @@ export default function Dashboard({ initialLayout }: DashboardProps) {
 
   return (
     <div className="h-screen w-full bg-gray-900 text-white flex flex-col">
-      {/* Header */}
       <header className="h-12 bg-gray-800 border-b border-gray-700 flex items-center px-4 flex-shrink-0">
         <div className="flex items-center gap-2">
           <h1 className="text-lg font-semibold">Crypto Trading Dashboard</h1>
         </div>
         <div className="ml-auto flex items-center gap-4">
-          {/* Reset Layout Button */}
           <button
             onClick={handleResetLayout}
             className="flex items-center gap-1 px-3 py-1.5 text-xs bg-slate-700/50 hover:bg-slate-600/50 border border-slate-600/50 hover:border-slate-500/50 rounded-md transition-all duration-200 text-gray-300 hover:text-white"
@@ -68,30 +66,11 @@ export default function Dashboard({ initialLayout }: DashboardProps) {
             <RotateCcw className="w-3 h-3" />
             <span>Reset Layout</span>
           </button>
-
-          <div className="flex items-center gap-2">
-            <StatusIcon
-              className={`w-4 h-4 ${statusInfo.color} ${
-                connectionStatus === "connecting" ? "animate-pulse" : ""
-              }`}
-            />
-            <span className="text-sm text-gray-300">{statusInfo.label}</span>
-          </div>
-          {error && (
-            <div className="flex items-center gap-2 text-red-400">
-              <AlertCircle className="w-4 h-4" />
-              <span className="text-xs max-w-xs truncate">{error.message}</span>
-            </div>
-          )}
         </div>
       </header>
-
-      {/* Dockview Layout - Resizable Panels */}
       <div className="flex-1 overflow-hidden">
         <DockviewLayout ref={dockviewLayoutRef} />
       </div>
-
-      {/* Status Bar */}
       <footer className="h-6 bg-gray-800 border-t border-gray-700 flex items-center px-4 text-xs text-gray-400 flex-shrink-0">
         <span>WebSocket: {connectionStatus}</span>
         <span className="mx-2">•</span>
@@ -106,10 +85,6 @@ export default function Dashboard({ initialLayout }: DashboardProps) {
             <span className="text-yellow-400">Connecting...</span>
           </>
         )}
-        <div className="ml-auto flex items-center gap-2 text-xs">
-          <span>Dockview Layout Active</span>
-          <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-        </div>
       </footer>
     </div>
   );

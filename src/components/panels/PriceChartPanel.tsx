@@ -129,7 +129,7 @@ const PriceChartPanel: React.FC = () => {
   );
 
   return (
-    <div className="h-full w-full flex flex-col p-4 bg-gray-900 text-white">
+    <div className="h-full w-full flex flex-col p-4 bg-gray-800 text-white">
       <div className="flex items-center justify-between mb-4">
         <div className="text-lg font-bold">Price Chart (BTC/USDT)</div>
         <div className="flex space-x-1 bg-gray-800 p-1 rounded-md">
