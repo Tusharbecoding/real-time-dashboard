@@ -3,11 +3,8 @@
 import React, { useState, useMemo } from "react";
 import { useTickers } from "@/store/dashboardStore";
 import {
-  TrendingUp,
-  TrendingDown,
   Search,
   Star,
-  MoreHorizontal,
   ArrowUpRight,
   ArrowDownRight,
   DollarSign,
@@ -80,7 +77,7 @@ const MarketDataPanel: React.FC = () => {
 
   if (tickersList.length === 0) {
     return (
-      <div className="h-full w-full flex flex-col items-center justify-center bg-slate-950 text-slate-400">
+      <div className="h-full w-full flex flex-col items-center justify-center bg-gray-800 text-slate-400">
         <div className="text-center">
           <div className="relative mb-4">
             <Activity className="w-12 h-12 mx-auto text-blue-400 animate-pulse" />
@@ -98,14 +95,11 @@ const MarketDataPanel: React.FC = () => {
   }
 
   return (
-    <div className="h-full w-full bg-slate-950 text-white flex flex-col overflow-hidden">
+    <div className="h-full w-full bg-gray-800 text-white flex flex-col overflow-hidden">
       {/* Header with Search */}
-      <div className="flex-shrink-0 px-4 py-3 bg-slate-900/50 backdrop-blur-sm border-b border-slate-800/50">
+      <div className="flex-shrink-0 px-4 py-3 bg-gray-800 backdrop-blur-sm border-b border-slate-800/50">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <div className="p-2 bg-blue-500/10 rounded-lg border border-blue-500/20">
-              <DollarSign className="w-4 h-4 text-blue-400" />
-            </div>
             <div>
               <h2 className="text-lg font-semibold text-slate-100">
                 Market Overview
@@ -135,8 +129,6 @@ const MarketDataPanel: React.FC = () => {
           />
         </div>
       </div>
-
-      {/* Market Data List */}
       <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-track-slate-900 scrollbar-thumb-slate-700 hover:scrollbar-thumb-slate-600">
         <div className="p-2 space-y-2">
           {tickersList.map((ticker) => {
@@ -148,7 +140,6 @@ const MarketDataPanel: React.FC = () => {
                 key={ticker.symbol}
                 className="group relative bg-slate-900/30 backdrop-blur-sm border border-slate-800/50 rounded-xl p-4 hover:bg-slate-800/40 hover:border-slate-700/50 transition-all duration-200 cursor-pointer"
               >
-                {/* Main Row */}
                 <div className="flex items-center justify-between mb-3">
                   {/* Symbol & Price */}
                   <div className="flex items-center gap-3 flex-1">
@@ -180,8 +171,6 @@ const MarketDataPanel: React.FC = () => {
                       </div>
                     </div>
                   </div>
-
-                  {/* Change & Actions */}
                   <div className="flex items-center gap-3">
                     <div className="text-right">
                       <div
@@ -207,14 +196,8 @@ const MarketDataPanel: React.FC = () => {
                         {isPositive ? "+" : ""}${formatPrice(ticker.change)}
                       </div>
                     </div>
-
-                    <button className="opacity-0 group-hover:opacity-100 p-1 hover:bg-slate-700/50 rounded-md transition-all">
-                      <MoreHorizontal className="w-4 h-4 text-slate-500" />
-                    </button>
                   </div>
                 </div>
-
-                {/* Stats Grid */}
                 <div className="grid grid-cols-4 gap-3 text-xs">
                   <div className="bg-slate-800/30 rounded-lg p-2">
                     <div className="text-slate-500 mb-1">24h High</div>
@@ -247,8 +230,6 @@ const MarketDataPanel: React.FC = () => {
                     </div>
                   </div>
                 </div>
-
-                {/* Order Book Preview */}
                 <div className="mt-3 pt-3 border-t border-slate-800/50">
                   <div className="grid grid-cols-2 gap-4 text-xs">
                     <div>
@@ -269,8 +250,6 @@ const MarketDataPanel: React.FC = () => {
                     </div>
                   </div>
                 </div>
-
-                {/* Change Indicator Bar */}
                 <div
                   className={`absolute left-0 top-0 w-1 h-full rounded-l-xl ${
                     getChangeBgColor(ticker.change).split(" ")[0]
@@ -279,34 +258,6 @@ const MarketDataPanel: React.FC = () => {
               </div>
             );
           })}
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className="flex-shrink-0 px-4 py-2 bg-slate-900/50 backdrop-blur-sm border-t border-slate-800/50">
-        <div className="flex items-center justify-between text-xs text-slate-500">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-              <span>Real-time • Binance</span>
-            </div>
-            {searchTerm && (
-              <span className="text-blue-400">
-                Showing {tickersList.length} results for "{searchTerm}"
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-1">
-            <span>Updated</span>
-            <span className="text-slate-400 font-mono">
-              {new Date().toLocaleTimeString("en-US", {
-                hour12: false,
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-              })}
-            </span>
-          </div>
         </div>
       </div>
     </div>
