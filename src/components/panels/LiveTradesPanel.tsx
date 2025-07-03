@@ -1,211 +1,131 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useMemo, useCallback } from "react";
 import { useTrades } from "@/store/dashboardStore";
 
-// Import Perspective viewer components to register custom elements
+// Import perspective components
 import "@finos/perspective-viewer";
 import "@finos/perspective-viewer-datagrid";
 
-const LiveTradesPanel: React.FC = () => {
+const LiveTradesPanel: React.FC = React.memo(() => {
   const trades = useTrades();
+  const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<any>(null);
   const tableRef = useRef<any>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isClient, setIsClient] = useState(false);
+  const lastUpdateRef = useRef<number>(0);
 
-  // Ensure we're on the client side
+  // Throttle data to max 100 trades, update max every 500ms
+  const throttledData = useMemo(() => {
+    const now = Date.now();
+    if (now - lastUpdateRef.current < 500) {
+      return null; // Skip this update
+    }
+    lastUpdateRef.current = now;
+
+    return trades.slice(0, 100).map((trade) => ({
+      symbol: trade.symbol,
+      side: trade.side,
+      price: Number(trade.price),
+      amount: Number(trade.amount),
+      cost: Number(trade.cost || 0),
+      time: trade.datetime,
+    }));
+  }, [trades]);
+
+  // Initialize viewer once
   useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  // Initialize Perspective only on client side
-  useEffect(() => {
-    if (!isClient) return;
-
     let mounted = true;
 
-    const initializePerspective = async () => {
+    const initViewer = async () => {
+      if (!containerRef.current || viewerRef.current) return;
+
       try {
-        setIsLoading(true);
-        setError(null);
-
-        // Dynamically import Perspective modules only on client side
+        // Import Perspective
         const perspective = await import("@finos/perspective");
-
-        // Import viewer components for side effects (registering custom elements)
         await import("@finos/perspective-viewer");
-        // @ts-ignore - Import for side effects only, type resolution not needed
+        // @ts-ignore
         await import("@finos/perspective-viewer-datagrid");
 
         if (!mounted) return;
 
-        // Create worker and table
+        // Create worker and initial empty table
         const worker = perspective.default.worker();
-        const table = await worker.table([]);
-        tableRef.current = table;
-
-        // Create the perspective-viewer element
-        const viewer = document.createElement("perspective-viewer");
-        viewerRef.current = viewer;
-
-        // Configure the viewer
-        viewer.setAttribute("theme", "Pro Dark");
-        viewer.setAttribute("plugin", "Datagrid");
-        viewer.setAttribute("editable", "false");
-        viewer.setAttribute("settings", "true");
-
-        // Style the viewer
-        viewer.style.height = "100%";
-        viewer.style.width = "100%";
-        viewer.style.setProperty("--plugin--background", "#1f2937");
-        viewer.style.setProperty("--inactive--color", "#9ca3af");
-
-        // Add to container
-        if (containerRef.current) {
-          containerRef.current.appendChild(viewer);
-        }
-
-        // Load the table
-        await viewer.load(table);
-
-        // Configure columns and sorting
-        await viewer.restore({
-          plugin: "Datagrid",
-          columns: [
-            "datetime",
-            "symbol",
-            "side",
-            "price",
-            "amount",
-            "cost",
-            "exchange",
-          ],
-          sort: [["timestamp", "desc"]],
+        const table = await worker.table({
+          symbol: "string",
+          side: "string",
+          price: "float",
+          amount: "float",
+          cost: "float",
+          time: "string",
         });
 
-        setIsLoading(false);
+        tableRef.current = table;
+
+        // Create viewer element
+        const viewer = document.createElement("perspective-viewer");
+        viewer.setAttribute("plugin", "Datagrid");
+        viewer.style.height = "100%";
+        viewer.style.width = "100%";
+        viewer.style.backgroundColor = "#1f2937";
+
+        // Clear and append
+        containerRef.current.innerHTML = "";
+        containerRef.current.appendChild(viewer);
+
+        // Load table
+        await viewer.load(table);
+        viewerRef.current = viewer;
+
+        console.log("Perspective initialized");
       } catch (err) {
-        console.error("Failed to initialize Perspective:", err);
-        if (mounted) {
-          setError(
-            `Failed to initialize Perspective: ${
-              err instanceof Error ? err.message : "Unknown error"
-            }`
-          );
-          setIsLoading(false);
+        console.error("Perspective failed:", err);
+        if (containerRef.current && mounted) {
+          containerRef.current.innerHTML =
+            '<div class="p-4 text-red-400">Perspective failed to load</div>';
         }
       }
     };
 
-    initializePerspective();
-
+    initViewer();
     return () => {
       mounted = false;
-      if (tableRef.current) {
-        tableRef.current.delete();
-        tableRef.current = null;
-      }
-      if (viewerRef.current && containerRef.current) {
-        containerRef.current.removeChild(viewerRef.current);
-        viewerRef.current = null;
-      }
     };
-  }, [isClient]);
+  }, []);
 
-  // Update table with new trades
-  useEffect(() => {
-    if (!isClient || !tableRef.current || trades.length === 0) return;
+  // Update data with throttling
+  const updateData = useCallback(async (data: any[]) => {
+    if (!tableRef.current || !data || data.length === 0) return;
 
     try {
-      // Prepare data for Perspective - keep last 1000 trades
-      const recentTrades = trades.slice(0, 1000).map((trade) => ({
-        id: trade.id,
-        timestamp: trade.timestamp,
-        datetime: trade.datetime,
-        symbol: trade.symbol,
-        side: trade.side,
-        price: trade.price,
-        amount: trade.amount,
-        cost: trade.cost,
-        exchange: trade.exchange,
-      }));
-
-      // Replace the entire dataset
-      tableRef.current.replace(recentTrades);
+      await tableRef.current.replace(data);
     } catch (err) {
-      console.error("Failed to update Perspective table:", err);
-      setError("Failed to update data");
+      console.warn("Data update failed:", err);
     }
-  }, [trades, isClient]);
+  }, []);
 
-  // Don't render anything on server side
-  if (!isClient) {
-    return (
-      <div className="h-full w-full flex flex-col bg-gray-900 text-white">
-        <div className="p-3 bg-gray-800 border-b border-gray-700">
-          <h3 className="text-sm font-semibold">Live Trades</h3>
-        </div>
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-gray-400">Loading...</div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="h-full w-full flex flex-col bg-gray-900 text-white">
-        <div className="p-3 bg-gray-800 border-b border-gray-700">
-          <h3 className="text-sm font-semibold">Live Trades</h3>
-        </div>
-        <div className="p-4 bg-red-900 text-red-200">
-          <h3 className="text-sm font-semibold">Error</h3>
-          <p className="text-xs">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-2 px-3 py-1 bg-red-700 text-white text-xs rounded hover:bg-red-600"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (throttledData) {
+      updateData(throttledData);
+    }
+  }, [throttledData, updateData]);
 
   return (
-    <div className="h-full w-full flex flex-col bg-gray-900 text-white">
-      {/* Header */}
-      <div className="p-3 bg-gray-800 border-b border-gray-700 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-          <h3 className="text-sm font-semibold">Live Trades</h3>
-          <span className="text-xs text-gray-400">
-            ({trades.length} trades)
-          </span>
-        </div>
-        {isLoading && (
-          <div className="text-xs text-gray-400">Loading Perspective...</div>
-        )}
+    <div className="h-full w-full flex flex-col bg-gray-900">
+      <div className="p-2 bg-gray-800 text-white text-sm flex justify-between">
+        <span>Live Trades ({trades.length})</span>
+        <span className="text-green-400 text-xs">● LIVE</span>
       </div>
-
-      {/* Perspective Viewer Container */}
-      <div className="flex-1 overflow-hidden">
-        {isLoading ? (
-          <div className="h-full flex items-center justify-center">
-            <div className="text-gray-400">
-              <div className="animate-spin w-6 h-6 border-2 border-blue-400 border-t-transparent rounded-full mb-2 mx-auto"></div>
-              <p className="text-sm">Initializing Perspective...</p>
-            </div>
-          </div>
-        ) : (
-          <div ref={containerRef} className="h-full w-full" />
-        )}
+      <div
+        ref={containerRef}
+        className="flex-1 min-h-0"
+        style={{ height: "calc(100% - 40px)" }}
+      >
+        <div className="p-4 text-gray-400 text-sm">Loading trades...</div>
       </div>
     </div>
   );
-};
+});
+
+LiveTradesPanel.displayName = "LiveTradesPanel";
 
 export default LiveTradesPanel;

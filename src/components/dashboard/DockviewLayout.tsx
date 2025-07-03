@@ -2,7 +2,7 @@
 
 import React, { useRef, forwardRef, useImperativeHandle } from "react";
 import { DockviewReact, DockviewApi, DockviewReadyEvent } from "dockview-react";
-import LiveTradesPanelWrapper from "../panels/LiveTradesPanelWrapper";
+import LiveTradesPanel from "../panels/LiveTradesPanelWrapper";
 import PriceChartPanel from "../panels/PriceChartPanel";
 import MarketDataPanel from "../panels/MarketDataPanel";
 import "dockview/dist/styles/dockview.css";
@@ -15,7 +15,7 @@ const DockviewLayout = forwardRef<DockviewLayoutRef>((props, ref) => {
   const dockviewRef = useRef<DockviewApi | null>(null);
 
   const panelComponents = {
-    "live-trades": () => <LiveTradesPanelWrapper />,
+    "live-trades": () => <LiveTradesPanel />,
     "price-chart": () => <PriceChartPanel />,
     "market-data": () => <MarketDataPanel />,
   };
