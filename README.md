@@ -45,7 +45,7 @@ A high-performance real-time cryptocurrency trading dashboard built with Next.js
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/Tusharbecoding/real-time-dashboard
 
 # Install dependencies
 npm install
